@@ -75,39 +75,8 @@ def check_crf_errors(raw_results):
                         "エラーメッセージ": f"女性患者に男性特有の疾患「{disease}」が登録されています。"
                     })
 
-        # --- 2. 本人の性別と妊娠・出産の矛盾 (登録時情報_基本) ---
-        baseline = parsed.get("登録時情報_基本", {})
-        if gender == "男":
-            preg_count = baseline.get("妊娠回数")
-            birth_count = baseline.get("出産回数")
-            
-            if preg_count is not None and preg_count != "" and pd.notna(preg_count):
-                try:
-                    if float(preg_count) > 0:
-                        errors.append({
-                            "ファイル名": filename,
-                            "カルテ番号": karte_no,
-                            "エラーの分類": "登録時情報 (妊娠・出産)",
-                            "項目/対象": "性別と妊娠歴の矛盾",
-                            "検出された値": f"性別: 男 / 妊娠回数: {preg_count}",
-                            "エラーメッセージ": f"男性患者に妊娠回数 {preg_count} 回が登録されています。"
-                        })
-                except ValueError:
-                    pass
-                    
-            if birth_count is not None and birth_count != "" and pd.notna(birth_count):
-                try:
-                    if float(birth_count) > 0:
-                        errors.append({
-                            "ファイル名": filename,
-                            "カルテ番号": karte_no,
-                            "エラーの分類": "登録時情報 (妊娠・出産)",
-                            "項目/対象": "性別と出産歴の矛盾",
-                            "検出された値": f"性別: 男 / 出産回数: {birth_count}",
-                            "エラーメッセージ": f"男性患者に出産回数 {birth_count} 回が登録されています。"
-                        })
-                except ValueError:
-                    pass
+
+
 
         # --- 3. 本人の性別とサーベイランス（検査）の矛盾 (サーベイランス) ---
         surveillances = parsed.get("サーベイランス", [])
