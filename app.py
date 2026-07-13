@@ -1,3 +1,19 @@
+# stlite (Pyodide Wasm) 環境での pyarrow 互換性パッチ
+try:
+    import sys
+    # pyarrowがインポート可能な場合にダミー属性を注入
+    import pyarrow as pa
+    if not hasattr(pa, "ChunkedArray"):
+        class DummyChunkedArray:
+            pass
+        pa.ChunkedArray = DummyChunkedArray
+    if not hasattr(pa, "Table"):
+        class DummyTable:
+            pass
+        pa.Table = DummyTable
+except Exception:
+    pass
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
