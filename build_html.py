@@ -136,7 +136,7 @@ def build_index_html():
       const errorFemaleXlsx = base64ToUint8Array("{error_female_xlsx_b64}");
 
       stlite.mount({{
-        requirements: ["pandas", "plotly", "openpyxl"],
+        requirements: ["pandas", "plotly==5.18.0", "openpyxl"],
         entrypoint: "app.py",
         files: {{
           "app.py": {app_py_json},
