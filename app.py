@@ -39,132 +39,137 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- カスタムCSSによるリッチデザインの適用 ---
+# --- カスタムCSS (Tab10カラー基調・シンプルデザイン) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-    
-    /* フォント適用 */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     html, body, [class*="css"], .stMarkdown {
-        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
     }
-    
-    /* メイン背景とサイドバー */
+
+    /* 背景 */
     .stApp {
-        background: linear-gradient(135deg, #0e1117 0%, #161a24 100%);
+        background-color: #f7f9fc;
     }
-    
-    /* カードデザイン (Glassmorphism) */
-    div[data-testid="stMetricValue"] {
-        font-size: 2.2rem !important;
-        font-weight: 700 !important;
-        color: #00f2fe !important;
+
+    /* サイドバー */
+    section[data-testid="stSidebar"] {
+        background-color: #ffffff;
+        border-right: 1px solid #e0e5ee;
     }
-    div[data-testid="stMetricLabel"] {
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-        color: #a3b8cc !important;
+
+    /* カード */
+    .crf-card {
+        background: #ffffff;
+        border: 1px solid #e0e5ee;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    
-    /* カスタムカードコンテナ */
-    .custom-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 20px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .custom-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(0, 242, 254, 0.3);
-        box-shadow: 0 12px 40px 0 rgba(0, 242, 254, 0.1);
-    }
-    
-    /* タイトルグラデーション */
-    .title-gradient {
-        background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 3rem;
-        margin-bottom: 5px;
-    }
-    
-    .subtitle {
-        color: #8b9bb4;
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-    }
-    
-    /* タブスタイル */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: rgba(255, 255, 255, 0.02);
-        padding: 8px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        height: 45px;
+
+    /* メトリクスカード */
+    .metric-card {
+        background: #ffffff;
+        border: 1px solid #e0e5ee;
+        border-left: 4px solid #1f77b4;
         border-radius: 8px;
-        background-color: transparent;
+        padding: 16px 20px;
+        margin-bottom: 8px;
+    }
+    .metric-card .m-label {
+        font-size: 0.82rem;
+        color: #6b7a99;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    .metric-card .m-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f77b4;
+    }
+    .metric-card.orange  { border-left-color: #ff7f0e; }
+    .metric-card.orange .m-value { color: #ff7f0e; }
+    .metric-card.green   { border-left-color: #2ca02c; }
+    .metric-card.green  .m-value { color: #2ca02c; }
+    .metric-card.red     { border-left-color: #d62728; }
+    .metric-card.red    .m-value { color: #d62728; }
+
+    /* タイトル */
+    .page-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #1a2540;
+        margin-bottom: 2px;
+    }
+    .page-sub {
+        font-size: 0.9rem;
+        color: #6b7a99;
+        margin-bottom: 20px;
+    }
+
+    /* タブ */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        background: #eef1f7;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 6px;
+        background: transparent;
         border: none;
-        color: #8b9bb4;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
+        color: #5a6680;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 8px 16px;
     }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        color: #00f2fe;
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-    
     .stTabs [aria-selected="true"] {
-        background-color: rgba(0, 242, 254, 0.15) !important;
-        color: #00f2fe !important;
-        border: 1px solid rgba(0, 242, 254, 0.3) !important;
+        background: #ffffff !important;
+        color: #1f77b4 !important;
+        font-weight: 600 !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
     }
-    
-    /* テーブルヘッダーと全体のフォントサイズ微調整 */
-    .dataframe {
-        font-size: 0.9rem;
-    }
-    
-    /* エラーアラートのスタイル */
-    .error-count-badge {
-        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
+
+    /* エラーバッジ */
+    .err-badge {
+        background: #d62728;
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
         display: inline-block;
-        margin-left: 10px;
     }
-    
-    .success-badge {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
+    .ok-badge {
+        background: #2ca02c;
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
         display: inline-block;
-        margin-left: 10px;
     }
+
+    /* プレースホルダー */
+    .placeholder-box {
+        background: #fff;
+        border: 2px dashed #c9d2e0;
+        border-radius: 12px;
+        padding: 60px 40px;
+        text-align: center;
+        color: #8896b0;
+        margin-top: 30px;
+    }
+    .placeholder-box h3 { color: #5a6680; font-weight: 600; margin-bottom: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
+
 # --- タイトルヘッダー ---
-st.markdown('<div class="title-gradient">🧬 LSRegistry CRF Tool</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">複数の症例報告書（CRF）の自動結合・可視化・矛盾データの検出システム</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-title">🧬 LSRegistry CRF Tool</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-sub">複数の症例報告書（CRF）の自動結合・可視化・矛盾データの検出システム</div>', unsafe_allow_html=True)
 
 # --- セッションステート初期化 ---
 if "uploaded_files_cache" not in st.session_state:
@@ -243,9 +248,9 @@ if not st.session_state.uploaded_files_cache:
     
     # プレースホルダーデザインを表示
     st.markdown("""
-    <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 60px; text-align: center; margin-top: 40px;">
-        <h3 style="color: #8b9bb4; font-weight: 500;">ファイルをロードすると、ここにダッシュボードと結合結果が表示されます</h3>
-        <p style="color: #5f6e85;">Excelファイルの各シート（登録票、登録時情報、家系情報、サーベイランス等）を自動的にパースし、エラーの抽出を行います。</p>
+    <div class="placeholder-box">
+        <h3>ファイルをロードすると、ここにダッシュボードと結合結果が表示されます</h3>
+        <p>Excelファイルの各シート（登録票、登録時情報、家系情報、サーベイランス等）を自動的にパースし、エラーの抽出を行います。</p>
     </div>
     """, unsafe_allow_html=True)
 else:
@@ -307,34 +312,34 @@ else:
 
         with col_m1:
             st.markdown(f"""
-            <div class="custom-card">
-                <div style="font-size: 0.9rem; color: #a3b8cc; font-weight: 500;">解析したCRFファイル数</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #00f2fe; margin-top: 10px;">{num_files}</div>
+            <div class="metric-card">
+                <div class="m-label">解析したCRFファイル数</div>
+                <div class="m-value">{num_files}</div>
             </div>
             """, unsafe_allow_html=True)
             
         with col_m2:
             st.markdown(f"""
-            <div class="custom-card">
-                <div style="font-size: 0.9rem; color: #a3b8cc; font-weight: 500;">登録患者数</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #38ef7d; margin-top: 10px;">{num_patients}</div>
+            <div class="metric-card orange">
+                <div class="m-label">登録患者数</div>
+                <div class="m-value">{num_patients}</div>
             </div>
             """, unsafe_allow_html=True)
             
         with col_m3:
             st.markdown(f"""
-            <div class="custom-card">
-                <div style="font-size: 0.9rem; color: #a3b8cc; font-weight: 500;">平均年齢</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #fccb90; margin-top: 10px;">{avg_age_str}</div>
+            <div class="metric-card green">
+                <div class="m-label">平均年齢</div>
+                <div class="m-value">{avg_age_str}</div>
             </div>
             """, unsafe_allow_html=True)
             
         with col_m4:
-            color = "#ff4b2b" if num_errors > 0 else "#38ef7d"
+            err_cls = "red" if num_errors > 0 else "green"
             st.markdown(f"""
-            <div class="custom-card">
-                <div style="font-size: 0.9rem; color: #a3b8cc; font-weight: 500;">検出されたエラー数</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: {color}; margin-top: 10px;">{num_errors}</div>
+            <div class="metric-card {err_cls}">
+                <div class="m-label">検出されたエラー数</div>
+                <div class="m-value">{num_errors}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -345,25 +350,25 @@ else:
         
         # グラフ1: 性別の割合
         with col_g1:
-            st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-            st.markdown("#### 🧬 性別割合")
+            st.markdown('<div class="crf-card">', unsafe_allow_html=True)
+            st.markdown("**性別割合**")
             if dfs and "登録票" in dfs and not dfs["登録票"].empty and "性別" in dfs["登録票"].columns:
                 gender_counts = dfs["登録票"]["性別"].value_counts()
                 labels = [str(x) for x in gender_counts.index.tolist()]
                 values = [int(x) for x in gender_counts.values.tolist()]
-                colors = ["#e0c3fc", "#8ec5fc", "#ffd1ff", "#ff9a9e"]
+                # Tab10カラー
+                t10 = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
                 fig_gender = go.Figure(go.Pie(
                     labels=labels,
                     values=values,
                     hole=0.4,
-                    marker=dict(colors=colors[:len(labels)])
+                    marker=dict(colors=t10[:len(labels)])
                 ))
                 fig_gender.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=300,
-                    template="plotly_dark"
+                    template="plotly_white"
                 )
                 st.plotly_chart(fig_gender, use_container_width=True)
             else:
@@ -372,8 +377,8 @@ else:
             
         # グラフ2: 遺伝子の分布
         with col_g2:
-            st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-            st.markdown("#### 🧬 遺伝子バリアント陽性頻度")
+            st.markdown('<div class="crf-card">', unsafe_allow_html=True)
+            st.markdown("**遺伝子バリアント陽性頻度**")
             gene_list = []
             if dfs and "登録票" in dfs and not dfs["登録票"].empty:
                 cols = [c for c in dfs["登録票"].columns if "遺伝子" in c]
@@ -384,23 +389,20 @@ else:
                 gene_counts = pd.Series(gene_list).value_counts()
                 x_vals = [str(x) for x in gene_counts.index.tolist()]
                 y_vals = [int(x) for x in gene_counts.values.tolist()]
-                bar_colors = ["#8ec5fc", "#e0c3fc", "#ffd1ff", "#ff9a9e", "#a1c4fd",
-                              "#fddb92", "#d1c4e9", "#b2ebf2"]
+                # Tab10カラー (循環)
+                t10 = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd",
+                       "#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf"]
                 fig_genes = go.Figure(go.Bar(
                     x=x_vals,
                     y=y_vals,
-                    marker=dict(
-                        color=bar_colors[:len(x_vals)],
-                        line=dict(color='rgba(255,255,255,0.1)', width=1)
-                    )
+                    marker=dict(color=t10[:len(x_vals)])
                 ))
                 fig_genes.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=300,
                     showlegend=False,
-                    template="plotly_dark"
+                    template="plotly_white"
                 )
                 st.plotly_chart(fig_genes, use_container_width=True)
             else:
@@ -411,28 +413,23 @@ else:
         
         # グラフ3: 最も多い病名
         with col_g3:
-            st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-            st.markdown("#### 腫瘍・病名頻度（上位10項目）")
+            st.markdown('<div class="crf-card">', unsafe_allow_html=True)
+            st.markdown("**腫瘍・病名頻度（上位10項目）**")
             if dfs and "登録時情報_診断治療歴" in dfs and not dfs["登録時情報_診断治療歴"].empty:
                 diag_counts = dfs["登録時情報_診断治療歴"]["病名"].value_counts().head(10)
                 y_vals = [str(x) for x in diag_counts.index.tolist()]
                 x_vals = [int(x) for x in diag_counts.values.tolist()]
-                # 数値に応じたグラデーションカラー
-                max_v = max(x_vals) if x_vals else 1
-                grad_colors = [f"rgba({int(160 + 80*v/max_v)}, {int(100 + 80*(1-v/max_v))}, 220, 0.85)"
-                               for v in x_vals]
                 fig_diag = go.Figure(go.Bar(
                     y=y_vals,
                     x=x_vals,
                     orientation='h',
-                    marker=dict(color=grad_colors)
+                    marker=dict(color="#1f77b4")
                 ))
                 fig_diag.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=320,
-                    template="plotly_dark"
+                    template="plotly_white"
                 )
                 st.plotly_chart(fig_diag, use_container_width=True)
             else:
@@ -441,8 +438,8 @@ else:
 
         # グラフ4: 医療機関ごとの登録数
         with col_g4:
-            st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-            st.markdown("#### 病院・医療機関別 登録割合")
+            st.markdown('<div class="crf-card">', unsafe_allow_html=True)
+            st.markdown("**病院・医療機関別 登録割合**")
             hosp_col = []
             if dfs and "登録票" in dfs and not dfs["登録票"].empty:
                 hosp_col = [c for c in dfs["登録票"].columns if "登録医療機関" in c]
@@ -451,19 +448,18 @@ else:
                 hosp_counts = dfs["登録票"][hosp_col[0]].value_counts()
                 hosp_labels = [str(x) for x in hosp_counts.index.tolist()]
                 hosp_values = [int(x) for x in hosp_counts.values.tolist()]
-                hosp_colors = ["#f7971e", "#ffd200", "#e96c5e", "#a18cd1",
-                               "#fbc2eb", "#84fab0", "#8fd3f4", "#d4fc79"]
+                t10 = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd",
+                       "#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf"]
                 fig_hosp = go.Figure(go.Pie(
                     labels=hosp_labels,
                     values=hosp_values,
-                    marker=dict(colors=hosp_colors[:len(hosp_labels)])
+                    marker=dict(colors=t10[:len(hosp_labels)])
                 ))
                 fig_hosp.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=320,
-                    template="plotly_dark"
+                    template="plotly_white"
                 )
                 st.plotly_chart(fig_hosp, use_container_width=True)
             else:
@@ -515,8 +511,7 @@ else:
         st.write("性別と疾患の矛盾（男性の卵巣がん・子宮がん、女性の前立腺がん等）や、家系情報、検査等の矛盾データを自動抽出しています。")
         
         if num_errors > 0:
-            st.markdown(f'<div class="error-count-badge">⚠️ {num_errors} 件の矛盾を検出</div>', unsafe_allow_html=True)
-            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.markdown(f'<div class="err-badge">⚠️ {num_errors} 件の矛盾を検出</div><br><br>', unsafe_allow_html=True)
             
             # エラーのフィルタリングオプション
             categories = ["すべて"] + list(errors_df["エラーの分類"].unique())
@@ -571,12 +566,5 @@ else:
                 )
                 
         else:
-            st.markdown('<div class="success-badge">✅ 不整合なし</div>', unsafe_allow_html=True)
-            st.markdown("<br><br>", unsafe_allow_html=True)
-            st.success("🎉 素晴らしい！矛盾データや不整合は一切検出されませんでした。すべてのデータの辻褄が合っています。")
-            st.markdown("""
-            <div style="background: rgba(17, 153, 142, 0.05); border: 1px solid rgba(56, 239, 125, 0.2); border-radius: 16px; padding: 40px; text-align: center; margin-top: 20px;">
-                <h3 style="color: #38ef7d; font-weight: 600;">Data is Clean!</h3>
-                <p style="color: #8b9bb4;">アップロードされたすべてのデータは整合性が確認され、臨床研究への使用に適しています。</p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="ok-badge">✅ 不整合なし</div><br><br>', unsafe_allow_html=True)
+            st.success("🎉 矛盾データや不整合は一切検出されませんでした。すべてのデータの辻褄が合っています。")
