@@ -1,5 +1,6 @@
 import base64
 import os
+import json
 
 def build_index_html():
     # 1. ソースコードの読み込み
@@ -11,6 +12,11 @@ def build_index_html():
         
     with open("validator.py", "r", encoding="utf-8") as f:
         validator_py = f.read()
+
+    # 安全にJavaScript文字列に変換するためにjson.dumpsを使用
+    app_py_json = json.dumps(app_py)
+    parser_py_json = json.dumps(parser_py)
+    validator_py_json = json.dumps(validator_py)
 
     # 2. ExcelファイルのBase64エンコード
     def get_base64(filepath):
@@ -82,18 +88,18 @@ def build_index_html():
     </style>
   </head>
   <body>
-    <!-- ローディング画面 -->
-    <div id="loading-screen">
-      <div class="spinner"></div>
-      <div class="loading-title">LSRegistry CRF Tool</div>
-      <div class="loading-desc">
-        ブラウザ上でPython環境を起動しています...<br>
-        (初回起動時はライブラリのダウンロードに10〜30秒程度かかります)
+    <!-- Streamlitのマウント先 -->
+    <div id="root">
+      <!-- ローディング画面 (マウント時に自動的に上書き消去されます) -->
+      <div id="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-title">LSRegistry CRF Tool</div>
+        <div class="loading-desc">
+          ブラウザ上でPython環境を起動しています...<br>
+          (初回起動時はライブラリのダウンロードに10〜30秒程度かかります)
+        </div>
       </div>
     </div>
-
-    <!-- Streamlitのマウント先 -->
-    <div id="root"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.58.0/build/stlite.js"></script>
     <script>
@@ -116,9 +122,9 @@ def build_index_html():
         requirements: ["pandas", "plotly", "openpyxl"],
         entrypoint: "app.py",
         files: {{
-          "app.py": `{app_py}`,
-          "parser.py": `{parser_py}`,
-          "validator.py": `{validator_py}`,
+          "app.py": {app_py_json},
+          "parser.py": {parser_py_json},
+          "validator.py": {validator_py_json},
           "★CRF20260210_normal.xlsx": {{
             content: normalXlsx
           }},
@@ -127,15 +133,6 @@ def build_index_html():
           }},
           "★CRF20260210_error_female.xlsx": {{
             content: errorFemaleXlsx
-          }}
-        }},
-        style: {{
-          // ローディング完了後にローディング画面を非表示にする
-          onMount: () => {{
-            const loadingScreen = document.getElementById("loading-screen");
-            if (loadingScreen) {{
-              loadingScreen.style.display = "none";
-            }}
           }}
         }}
       }}, document.getElementById("root"));
