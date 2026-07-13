@@ -1,32 +1,21 @@
+import streamlit as st
+import pandas as pd
+
 # stlite (Pyodide Wasm) 環境での pyarrow 互換性パッチ
 try:
     import sys
-    from types import ModuleType
-    
-    if "pyarrow" not in sys.modules:
-        pa = ModuleType("pyarrow")
+    import pyarrow as pa
+    if not hasattr(pa, "ChunkedArray"):
         class DummyChunkedArray:
             pass
+        pa.ChunkedArray = DummyChunkedArray
+    if not hasattr(pa, "Table"):
         class DummyTable:
             pass
-        pa.ChunkedArray = DummyChunkedArray
         pa.Table = DummyTable
-        sys.modules["pyarrow"] = pa
-    else:
-        pa = sys.modules["pyarrow"]
-        if not hasattr(pa, "ChunkedArray"):
-            class DummyChunkedArray:
-                pass
-            pa.ChunkedArray = DummyChunkedArray
-        if not hasattr(pa, "Table"):
-            class DummyTable:
-                pass
-            pa.Table = DummyTable
 except Exception:
     pass
 
-import streamlit as st
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import io
