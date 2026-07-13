@@ -1,25 +1,20 @@
-# stlite (Pyodide Wasm) 環境での pyarrow 互換性パッチ
-try:
-    import sys
-    from types import ModuleType
-    
-    pa = ModuleType("pyarrow")
-    class DummyChunkedArray:
-        pass
-    class DummyTable:
-        pass
-    pa.ChunkedArray = DummyChunkedArray
-    pa.Table = DummyTable
-    pa.__version__ = "10.0.0"
-    
-    sys.modules["pyarrow"] = pa
-except Exception:
-    pass
-
 import streamlit as st
 import pandas as pd
 
-import plotly.express as px
+# stlite (Pyodide Wasm) 環境での pyarrow 互換性パッチ
+# plotly.expressはDataFrameを渡すとnarwhals経由でpyarrow.ChunkedArrayを要求するため
+# 全チャートはgo.Figureで生データ(list)を使用し、narwhalsを完全回避する
+try:
+    import pyarrow as pa
+    if not hasattr(pa, 'ChunkedArray'):
+        class _DummyChunkedArray: pass
+        pa.ChunkedArray = _DummyChunkedArray
+    if not hasattr(pa, 'Table'):
+        class _DummyTable: pass
+        pa.Table = _DummyTable
+except Exception:
+    pass
+
 import plotly.graph_objects as go
 import io
 import os
@@ -353,21 +348,22 @@ else:
             st.markdown('<div class="custom-card">', unsafe_allow_html=True)
             st.markdown("#### 🧬 性別割合")
             if dfs and "登録票" in dfs and not dfs["登録票"].empty and "性別" in dfs["登録票"].columns:
-                df_gender = dfs["登録票"]["性別"].value_counts().reset_index()
-                df_gender.columns = ["性別", "件数"]
-                fig_gender = px.pie(
-                    df_gender, 
-                    names="性別", 
-                    values="件数", 
+                gender_counts = dfs["登録票"]["性別"].value_counts()
+                labels = [str(x) for x in gender_counts.index.tolist()]
+                values = [int(x) for x in gender_counts.values.tolist()]
+                colors = ["#e0c3fc", "#8ec5fc", "#ffd1ff", "#ff9a9e"]
+                fig_gender = go.Figure(go.Pie(
+                    labels=labels,
+                    values=values,
                     hole=0.4,
-                    color_discrete_sequence=["#e0c3fc", "#8ec5fc"] if len(df_gender) > 1 else ["#8ec5fc"],
-                    template="plotly_dark"
-                )
+                    marker=dict(colors=colors[:len(labels)])
+                ))
                 fig_gender.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
-                    height=300
+                    height=300,
+                    template="plotly_dark"
                 )
                 st.plotly_chart(fig_gender, use_container_width=True)
             else:
@@ -378,7 +374,6 @@ else:
         with col_g2:
             st.markdown('<div class="custom-card">', unsafe_allow_html=True)
             st.markdown("#### 🧬 遺伝子バリアント陽性頻度")
-            # 遺伝子１と遺伝子２を集計する
             gene_list = []
             if dfs and "登録票" in dfs and not dfs["登録票"].empty:
                 cols = [c for c in dfs["登録票"].columns if "遺伝子" in c]
@@ -386,27 +381,26 @@ else:
                     gene_list.extend(dfs["登録票"][col].dropna().tolist())
                     
             if gene_list:
-                df_genes = pd.Series(gene_list).value_counts().reset_index()
-                df_genes.columns = ["遺伝子", "陽性数"]
-                fig_genes = px.bar(
-                    df_genes,
-                    x="遺伝子",
-                    y="陽性数",
-                    template="plotly_dark"
-                )
-                # 棒ごとに異なる美しい色を設定
-                colors = ["#8ec5fc", "#e0c3fc", "#ffd1ff", "#ff9a9e", "#a1c4fd"]
-                fig_genes.update_traces(
-                    marker_color=colors[:len(df_genes)],
-                    marker_line_color='rgba(255,255,255,0.1)',
-                    marker_line_width=1
-                )
+                gene_counts = pd.Series(gene_list).value_counts()
+                x_vals = [str(x) for x in gene_counts.index.tolist()]
+                y_vals = [int(x) for x in gene_counts.values.tolist()]
+                bar_colors = ["#8ec5fc", "#e0c3fc", "#ffd1ff", "#ff9a9e", "#a1c4fd",
+                              "#fddb92", "#d1c4e9", "#b2ebf2"]
+                fig_genes = go.Figure(go.Bar(
+                    x=x_vals,
+                    y=y_vals,
+                    marker=dict(
+                        color=bar_colors[:len(x_vals)],
+                        line=dict(color='rgba(255,255,255,0.1)', width=1)
+                    )
+                ))
                 fig_genes.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=300,
-                    showlegend=False
+                    showlegend=False,
+                    template="plotly_dark"
                 )
                 st.plotly_chart(fig_genes, use_container_width=True)
             else:
@@ -420,24 +414,25 @@ else:
             st.markdown('<div class="custom-card">', unsafe_allow_html=True)
             st.markdown("#### 腫瘍・病名頻度（上位10項目）")
             if dfs and "登録時情報_診断治療歴" in dfs and not dfs["登録時情報_診断治療歴"].empty:
-                df_diag = dfs["登録時情報_診断治療歴"]["病名"].value_counts().reset_index()
-                df_diag.columns = ["病名", "症例数"]
-                df_diag = df_diag.head(10)
-                fig_diag = px.bar(
-                    df_diag,
-                    y="病名",
-                    x="症例数",
-                    orientation="h",
-                    color="症例数",
-                    color_continuous_scale="Purples",
-                    template="plotly_dark"
-                )
+                diag_counts = dfs["登録時情報_診断治療歴"]["病名"].value_counts().head(10)
+                y_vals = [str(x) for x in diag_counts.index.tolist()]
+                x_vals = [int(x) for x in diag_counts.values.tolist()]
+                # 数値に応じたグラデーションカラー
+                max_v = max(x_vals) if x_vals else 1
+                grad_colors = [f"rgba({int(160 + 80*v/max_v)}, {int(100 + 80*(1-v/max_v))}, 220, 0.85)"
+                               for v in x_vals]
+                fig_diag = go.Figure(go.Bar(
+                    y=y_vals,
+                    x=x_vals,
+                    orientation='h',
+                    marker=dict(color=grad_colors)
+                ))
                 fig_diag.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=320,
-                    coloraxis_showscale=False
+                    template="plotly_dark"
                 )
                 st.plotly_chart(fig_diag, use_container_width=True)
             else:
@@ -453,20 +448,22 @@ else:
                 hosp_col = [c for c in dfs["登録票"].columns if "登録医療機関" in c]
                 
             if hosp_col:
-                df_hosp = dfs["登録票"][hosp_col[0]].value_counts().reset_index()
-                df_hosp.columns = ["医療機関", "登録数"]
-                fig_hosp = px.pie(
-                    df_hosp,
-                    names="医療機関",
-                    values="登録数",
-                    color_discrete_sequence=px.colors.sequential.Agsunset,
-                    template="plotly_dark"
-                )
+                hosp_counts = dfs["登録票"][hosp_col[0]].value_counts()
+                hosp_labels = [str(x) for x in hosp_counts.index.tolist()]
+                hosp_values = [int(x) for x in hosp_counts.values.tolist()]
+                hosp_colors = ["#f7971e", "#ffd200", "#e96c5e", "#a18cd1",
+                               "#fbc2eb", "#84fab0", "#8fd3f4", "#d4fc79"]
+                fig_hosp = go.Figure(go.Pie(
+                    labels=hosp_labels,
+                    values=hosp_values,
+                    marker=dict(colors=hosp_colors[:len(hosp_labels)])
+                ))
                 fig_hosp.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
-                    height=320
+                    height=320,
+                    template="plotly_dark"
                 )
                 st.plotly_chart(fig_hosp, use_container_width=True)
             else:
