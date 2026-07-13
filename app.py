@@ -39,7 +39,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- カスタムCSS (Tab10カラー基調・シンプルデザイン) ---
+# --- カスタムCSS (Tab10カラー基調 / ダーク・ライト両対応) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -48,31 +48,21 @@ st.markdown("""
         font-family: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
     }
 
-    /* 背景 */
-    .stApp {
-        background-color: #f7f9fc;
-    }
+    /* 強制背景なし: Streamlitのライト/ダークテーマに従う */
 
-    /* サイドバー */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e0e5ee;
-    }
-
-    /* カード */
+    /* カード: 半透明でどちらのテーマでも馴染む */
     .crf-card {
-        background: #ffffff;
-        border: 1px solid #e0e5ee;
+        background: rgba(127, 127, 127, 0.08);
+        border: 1px solid rgba(127, 127, 127, 0.2);
         border-radius: 10px;
         padding: 18px 20px;
         margin-bottom: 16px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
-    /* メトリクスカード */
+    /* メトリクスカード: Tab10左ボーダーアクセント */
     .metric-card {
-        background: #ffffff;
-        border: 1px solid #e0e5ee;
+        background: rgba(127, 127, 127, 0.08);
+        border: 1px solid rgba(127, 127, 127, 0.18);
         border-left: 4px solid #1f77b4;
         border-radius: 8px;
         padding: 16px 20px;
@@ -80,7 +70,7 @@ st.markdown("""
     }
     .metric-card .m-label {
         font-size: 0.82rem;
-        color: #6b7a99;
+        opacity: 0.6;
         font-weight: 500;
         margin-bottom: 4px;
     }
@@ -96,23 +86,22 @@ st.markdown("""
     .metric-card.red     { border-left-color: #d62728; }
     .metric-card.red    .m-value { color: #d62728; }
 
-    /* タイトル */
+    /* タイトル: テーマ色に依存 */
     .page-title {
         font-size: 1.7rem;
         font-weight: 700;
-        color: #1a2540;
         margin-bottom: 2px;
     }
     .page-sub {
         font-size: 0.9rem;
-        color: #6b7a99;
+        opacity: 0.55;
         margin-bottom: 20px;
     }
 
     /* タブ */
     .stTabs [data-baseweb="tab-list"] {
         gap: 4px;
-        background: #eef1f7;
+        background: rgba(127,127,127,0.1);
         border-radius: 8px;
         padding: 4px;
     }
@@ -120,19 +109,19 @@ st.markdown("""
         border-radius: 6px;
         background: transparent;
         border: none;
-        color: #5a6680;
+        opacity: 0.65;
         font-weight: 500;
         font-size: 0.9rem;
         padding: 8px 16px;
     }
     .stTabs [aria-selected="true"] {
-        background: #ffffff !important;
+        background: rgba(31,119,180,0.15) !important;
         color: #1f77b4 !important;
+        opacity: 1 !important;
         font-weight: 600 !important;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
     }
 
-    /* エラーバッジ */
+    /* バッジ */
     .err-badge {
         background: #d62728;
         color: #fff;
@@ -154,15 +143,14 @@ st.markdown("""
 
     /* プレースホルダー */
     .placeholder-box {
-        background: #fff;
-        border: 2px dashed #c9d2e0;
+        border: 2px dashed rgba(127,127,127,0.35);
         border-radius: 12px;
         padding: 60px 40px;
         text-align: center;
-        color: #8896b0;
+        opacity: 0.7;
         margin-top: 30px;
     }
-    .placeholder-box h3 { color: #5a6680; font-weight: 600; margin-bottom: 10px; }
+    .placeholder-box h3 { font-weight: 600; margin-bottom: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -192,38 +180,6 @@ with st.sidebar:
         accept_multiple_files=True,
         key="uploader"
     )
-    
-    # サンプルデータのロードボタン（デモ・テスト用）
-    st.markdown("---")
-    st.markdown("### 🧪 テスト・検証用")
-    load_samples = st.button("デモ用サンプルデータをロード", use_container_width=True)
-    
-    if load_samples:
-        # ローカルとWasm環境両方のファイルパスを考慮
-        sample_paths = {
-            "★CRF20260210_normal.xlsx": "★CRF20260210_normal.xlsx" if os.path.exists("★CRF20260210_normal.xlsx") else "sample_normal.xlsx",
-            "★CRF20260210_error_male.xlsx": "★CRF20260210_error_male.xlsx" if os.path.exists("★CRF20260210_error_male.xlsx") else "sample_error_male.xlsx",
-            "★CRF20260210_error_female.xlsx": "★CRF20260210_error_female.xlsx" if os.path.exists("★CRF20260210_error_female.xlsx") else "sample_error_female.xlsx"
-        }
-        
-        # ファイルが存在するか確認
-        samples_exist = True
-        for path in sample_paths.values():
-            if not os.path.exists(path):
-                samples_exist = False
-                break
-                
-        if samples_exist:
-            st.session_state.uploaded_files_cache = sample_paths
-            with st.spinner("サンプルデータを解析中..."):
-                dfs, raw_results = combine_multiple_files(sample_paths)
-                st.session_state.dfs = dfs
-                st.session_state.raw_results = raw_results
-                st.session_state.errors_df = check_crf_errors(raw_results)
-            st.success("デモ用データをロードしました！")
-            st.rerun()
-        else:
-            st.error("テスト用ファイルが見つかりません。プロジェクトのルートディレクトリにファイルを生成してください。")
 
 # ファイルが手動でアップロードされた場合の処理
 if uploaded_files:
@@ -368,7 +324,6 @@ else:
                     paper_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=300,
-                    template="plotly_white"
                 )
                 st.plotly_chart(fig_gender, use_container_width=True)
             else:
@@ -402,7 +357,6 @@ else:
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=300,
                     showlegend=False,
-                    template="plotly_white"
                 )
                 st.plotly_chart(fig_genes, use_container_width=True)
             else:
@@ -429,7 +383,6 @@ else:
                     paper_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=320,
-                    template="plotly_white"
                 )
                 st.plotly_chart(fig_diag, use_container_width=True)
             else:
@@ -459,7 +412,6 @@ else:
                     paper_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=10, b=10, l=10, r=10),
                     height=320,
-                    template="plotly_white"
                 )
                 st.plotly_chart(fig_hosp, use_container_width=True)
             else:
